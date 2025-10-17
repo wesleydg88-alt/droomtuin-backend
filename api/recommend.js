@@ -1,7 +1,7 @@
-// /api/recommend.js — eenvoudige endpoint + CORS
+// /api/recommend.js — eenvoudige endpoint + CORS (Vercel)
 const ALLOWED_ORIGINS = [
-  'https://JOUWSHOP.myshopify.com', // ⬅️ vervang met jouw myshopify-domein
-  'https://www.JOUWDOMEIN.nl'       // ⬅️ vervang met jouw storefront domein (optioneel)
+  'https://z6wcmm-dm.myshopify.com', // ✅ jouw echte Shopify domein
+  'https://www.JOUWDOMEIN.nl'        // optioneel: vervang later met je publieke domein
 ];
 
 function setCors(req, res) {
@@ -19,19 +19,30 @@ export default async function handler(req, res) {
   // Preflight
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Test GET
+  // Test GET (handig om snel te checken in de browser)
   if (req.method !== 'POST') {
     return res.status(200).json({ ok: true, message: 'Endpoint actief (GET)' });
   }
 
-  // Demo: echo terug (vervangen we later door echte selectie)
+  // Demo echo + voorbeeldproducten (vervangen we later door echte selectie)
   const input = req.body || {};
+  const { area_m2 = 10, sun = '', colors = [], tags = [] } = input;
+
+  // heel simpele “suggestie” op basis van input (placeholder)
+  const demo = [];
+  if (colors.includes('purple') || colors.includes('white')) {
+    demo.push({ title: "Allium 'Purple Sensation'", price: 8.95 });
+  }
+  demo.push({ title: "Tulp 'Maureen'", price: 6.95 });
+  if (tags.includes('bijvriendelijk')) demo.push({ title: "Krokus Mix (bijvriendelijk)", price: 3.25 });
+
   return res.status(200).json({
     ok: true,
-    received: input,
-    demoProducts: [
-      { title: "Tulp 'Maureen'", price: 6.95 },
-      { title: "Allium 'Purple Sensation'", price: 8.95 }
-    ]
+    received: { area_m2, sun, colors, tags },
+    summary: {
+      note: 'Demo-antwoord. Productlogica komt in de volgende stap.',
+      estimated_total_bulbs: Math.round(area_m2 * 35)
+    },
+    demoProducts: demo
   });
 }
