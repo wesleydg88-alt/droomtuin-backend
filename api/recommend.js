@@ -1,30 +1,9 @@
-// /api/recommend.js — robuste CORS + simpele POST respons (test)
-
-// Whitelist jouw domeinen
-const ALLOWED_ORIGINS = [
-  'https://z6wcmm-dm.myshopify.com',
-  'https://flowerbulb.nl',
-  'https://www.flowerbulb.nl'
-];
-
-// Zet tijdelijk op true als je CORS wil uitsluiten tijdens testen
-const CORS_ALLOW_ALL_TEMP = false;
-
-function applyCors(req, res) {
-  const origin = req.headers.origin || '';
-  const allow = CORS_ALLOW_ALL_TEMP
-    ? (origin || '*')
-    : (ALLOWED_ORIGINS.find(o => origin.startsWith(o)) || ALLOWED_ORIGINS[0]);
-  res.setHeader('Access-Control-Allow-Origin', allow);
-  res.setHeader('Vary', 'Origin');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Max-Age', '86400');
-}
-
+// api/recommend.js
 export default async function handler(req, res) {
-  applyCors(req, res);
-
+  // CORS voor Shopify (eerst open zetten; later kun je whitelisten)
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   if (req.method === 'GET') {
@@ -33,14 +12,21 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     const body = req.body || {};
-    return res.status(200).json({
-      ok: true,
-      received: body,
-      demoProducts: [
-        { title: 'Tulp “Maureen”', price: 6.95 },
-        { title: 'Allium “Purple Sensation”', price: 9.50 }
-      ]
-    });
+    const { area_m2 } = body;
+
+    // Demo-antwoord (straks vervangen door echte Shopify data)
+    const demoProducts = [
+      { title: 'Tulipa Yellow', price: 3.99 },
+      { title: 'Hyacinthus Blue', price: 4.49 },
+      { title: 'Narcissus White', price: 2.99 }
+    ];
+
+    const bundle = {
+      items: demoProducts,
+      targetBulbs: Math.round((area_m2 || 10) * 5)
+    };
+
+    return res.status(200).json({ ok: true, bundle, demoProducts });
   }
 
   return res.status(405).json({ ok: false, error: 'Method not allowed' });
