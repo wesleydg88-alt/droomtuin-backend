@@ -1,11 +1,14 @@
-// /api/recommend.js — echte Shopify-producten via Storefront API + CORS
-const ALLOWED_ORIGINS = ['https://z6wcmm-dm.myshopify.com'];
+// /api/recommend.js
+const ALLOWED_ORIGINS = [
+  'https://z6wcmm-dm.myshopify.com',
+  'https://flowerbulb.nl',
+  'https://www.flowerbulb.nl'
+];
+
 function setCors(req, res) {
   const origin = req.headers.origin || '';
-  res.setHeader('Access-Control-Allow-Origin',
-    origin && ALLOWED_ORIGINS.some(o => origin.startsWith(o)) ? origin : ALLOWED_ORIGINS[0]
-  );
-  res.setHeader('Vary', 'Origin');
+  const allow = ALLOWED_ORIGINS.find(o => origin.startsWith(o));
+  res.setHeader('Access-Control-Allow-Origin', allow || ALLOWED_ORIGINS[0]);
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Access-Control-Max-Age', '86400');
